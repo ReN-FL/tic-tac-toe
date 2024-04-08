@@ -20,8 +20,12 @@ const gameBoard = (function () {
     board[row][column].addValue(token);
   };
   const getBoard = () => board;
-  console.log(board);
-  return { getBoard, clearBoard, addMark };
+
+  const printBoard = () => {
+    const boardValues = board.map((row) => row.map((cell) => cell.getValue()));
+    return boardValues;
+  };
+  return { printBoard, getBoard, clearBoard, addMark };
 })();
 
 function Cell() {
@@ -58,9 +62,54 @@ const Player = (function () {
   };
   const player1 = new CreatePlayer('Player1', 1);
   const player2 = new CreatePlayer('Player2', 2);
-  return { player1, player2, updateName };
+  players.push('null');
+  players.push(player1);
+  players.push(player2);
+  return { players, updateName };
 })();
 
 const Game = (function () {
-  function PlayRound() {}
+  let currentTurn = 0;
+  function startRound() {
+    if (currentTurn == 1) {
+      currentTurn = 2;
+    } else {
+      currentTurn = 1;
+    }
+    console.log(`${Player.players[currentTurn].name}`);
+    console.table(gameBoard.printBoard());
+  }
+  function playRound(row, column) {
+    gameBoard.addMark(row, column, currentTurn);
+    checkWin();
+    startRound();
+  }
+  function checkWin() {
+    let arr = gameBoard.printBoard();
+    const allEqual = (arr) => arr.every((val) => val === arr[0]);
+    arr.map((row) => {
+      if (row[0] !== 0) {
+        if (allEqual(row)) {
+          let winner = row[0];
+          console.log(winner);
+          gameWin(winner);
+        }
+      }
+    });
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i][i] !== 0) {
+        if (arr[0][i] == arr[1][i] && arr[1][i] == arr[2][i]) {
+          let winner = arr[0][i];
+          gameWin(winner);
+        }
+      }
+    }
+  }
+  function gameWin(winner) {
+    console.log(`${Player.players[winner].name} won`);
+    Player.players[winner].addScore(1);
+    gameBoard.clearBoard();
+    currentTurn = 0;
+  }
+  return { startRound, playRound, checkWin };
 })();
