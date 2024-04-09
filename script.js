@@ -70,6 +70,7 @@ const Player = (function () {
 
 const Game = (function () {
   let currentTurn = 0;
+  let turnCount = 1;
   function startRound() {
     if (currentTurn == 1) {
       currentTurn = 2;
@@ -77,12 +78,18 @@ const Game = (function () {
       currentTurn = 1;
     }
     console.log(`${Player.players[currentTurn].name}`);
-    console.table(gameBoard.printBoard());
+    Display.updateBoard();
   }
   function playRound(row, column) {
-    gameBoard.addMark(row, column, currentTurn);
-    checkWin();
-    startRound();
+    let arr = gameBoard.printBoard();
+    if (arr[row][column] !== 0) {
+      return '';
+    } else {
+      gameBoard.addMark(row, column, currentTurn);
+      checkWin();
+      turnCount++;
+      startRound();
+    }
   }
   function checkWin() {
     let arr = gameBoard.printBoard();
@@ -104,12 +111,61 @@ const Game = (function () {
         }
       }
     }
+    if (arr[1][1] !== 0) {
+      if (
+        (arr[0][0] == arr[1][1] && arr[1][1] == arr[2][2]) ||
+        (arr[0][2] == arr[1][1] && arr[1][1] == arr[2][0])
+      ) {
+        let winner = arr[1][1];
+        gameWin(winner);
+      }
+    }
+    if (turnCount == 9) {
+      tie();
+    }
   }
   function gameWin(winner) {
     console.log(`${Player.players[winner].name} won`);
     Player.players[winner].addScore(1);
     gameBoard.clearBoard();
     currentTurn = 0;
+    turnCount = 1;
+  }
+  function tie() {
+    gameBoard.clearBoard();
+    currentTurn = 0;
+    turnCount = 1;
+    return 'its a tie';
   }
   return { startRound, playRound, checkWin };
+})();
+
+const Display = (function () {
+  function updateBoard() {
+    const board = document.querySelector('.gameboard');
+    const items = document.querySelectorAll('.board-item');
+    items.forEach((e) => {
+      board.removeChild(e);
+    });
+    let arr = gameBoard.printBoard();
+    for (let i = 0; i < arr.length; i++) {
+      for (let j = 0; j < arr.length; j++) {
+        const square = document.createElement('button');
+        square.classList = 'board-item';
+        square.setAttribute('type', 'button');
+        if (arr[i][j] == 1) {
+          square.textContent = 'x';
+        } else if (arr[i][j] == 2) {
+          square.textContent = 'o';
+        } else {
+          square.textContent = '';
+        }
+        square.addEventListener('click', () => {
+          Game.playRound(i, j);
+        });
+        board.appendChild(square);
+      }
+    }
+  }
+  return { updateBoard };
 })();
