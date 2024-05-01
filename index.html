@@ -7,8 +7,30 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="container">
-      <div class="gameboard"></div>
+    <dialog>
+      <form action="">
+        <label for="name1">Player 1 name:</label>
+        <input type="text" name="player1Name" id="name1" />
+        <label for="name2">Player 2 name:</label>
+        <input type="text" name="player2Name" id="name2" />
+        <button type="button" id="bt-save">Save</button>
+      </form>
+    </dialog>
+    <div class="out-container">
+      <div class="controls">
+        <div class="bt-container">
+          <button type="button" class="bt-start bt">Start</button>
+          <button type="button" class="bt-reset bt">Reset</button>
+          <button type="button" class="bt-name">Change Names</button>
+        </div>
+      </div>
+      <div class="container">
+        <div class="info">
+          <div class="info-text"></div>
+          <div class="win-text"></div>
+        </div>
+        <div class="gameboard"></div>
+      </div>
     </div>
     <script src="script.js"></script>
   </body>

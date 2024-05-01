@@ -53,9 +53,9 @@ const Player = (function () {
     this.addScore = (n) => {
       score += n;
     };
-  }
-  function updateName(player, name) {
-    player.name = name;
+    this.updateName = (n) => {
+      this.name = n;
+    };
   }
   CreatePlayer.prototype.resetScore = () => {
     score = 0;
@@ -65,7 +65,7 @@ const Player = (function () {
   players.push('null');
   players.push(player1);
   players.push(player2);
-  return { players, updateName };
+  return { players };
 })();
 
 const Game = (function () {
@@ -77,7 +77,7 @@ const Game = (function () {
     } else {
       currentTurn = 1;
     }
-    console.log(`${Player.players[currentTurn].name}`);
+    Display.updateInfo(`${Player.players[currentTurn].name}`);
     Display.updateBoard();
   }
   function playRound(row, column) {
@@ -125,7 +125,7 @@ const Game = (function () {
     }
   }
   function gameWin(winner) {
-    console.log(`${Player.players[winner].name} won`);
+    Display.updateWin(`${Player.players[winner].name} won`);
     Player.players[winner].addScore(1);
     gameBoard.clearBoard();
     currentTurn = 0;
@@ -135,9 +135,15 @@ const Game = (function () {
     gameBoard.clearBoard();
     currentTurn = 0;
     turnCount = 1;
-    return 'its a tie';
+    Display.updateWin('its a tie');
   }
-  return { startRound, playRound, checkWin };
+  function reset() {
+    gameBoard.clearBoard();
+    currentTurn = 0;
+    turnCount = 1;
+    Display.updateBoard();
+  }
+  return { startRound, playRound, checkWin, reset };
 })();
 
 const Display = (function () {
@@ -167,5 +173,38 @@ const Display = (function () {
       }
     }
   }
-  return { updateBoard };
+  function updateInfo(str) {
+    const info = document.querySelector('.info-text');
+    info.textContent = str;
+  }
+  function updateWin(str) {
+    const winT = document.querySelector('.win-text');
+    winT.textContent = str;
+  }
+  const UiControl = (function () {
+    const btStart = document.querySelector('.bt-start');
+    btStart.addEventListener('click', () => {
+      Game.startRound();
+    });
+
+    const btReset = document.querySelector('.bt-reset');
+    btReset.addEventListener('click', () => {
+      Game.reset();
+    });
+
+    const btName = document.querySelector('.bt-name');
+    const modal = document.querySelector('dialog');
+    btName.addEventListener('click', () => {
+      modal.toggleAttribute('open');
+    });
+
+    const btSave = document.querySelector('#bt-save');
+    btSave.addEventListener('click', () => {
+      const newName1 = document.querySelector('#name1').value;
+      const newName2 = document.querySelector('#name2').value;
+      Player.players[1].updateName(newName1);
+      Player.players[2].updateName(newName2);
+    });
+  })();
+  return { updateBoard, updateInfo, updateWin };
 })();
